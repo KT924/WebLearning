@@ -1,3 +1,8 @@
+"""
+Flask基础，与配置文件使用
+"""
+
+
 from flask import Flask
 import config
 app=Flask(__name__)
