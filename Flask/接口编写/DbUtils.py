@@ -13,10 +13,11 @@ class MySqlUtils:
         self.dbName = dbName
         self.dbConn = self.connect_db()
 
-    def connect_db(self):
+
+    def __connect_db(self):
         dbConn = pymysql.connect(
             host=self.host, port=self.port, user=self.user, password=self.password, database=self.dbName)
-        dbConn.autocommit(True)
+        dbConn.autocommit(False)
         return dbConn
 
     def disconnect_db(self):
