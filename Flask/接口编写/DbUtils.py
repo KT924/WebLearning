@@ -1,6 +1,6 @@
 #!/bin/env python
 
-
+import time
 import pymysql
 
 
@@ -11,9 +11,13 @@ class MySqlUtils:
         self.password = password
         self.port = port
         self.dbName = dbName
-        self.dbConn = self.connect_db()
+        self.dbConn = self.__connect_db()
 
-
+    def __enter__(self):
+        pass
+    def __exit__(self):
+        pass
+    
     def __connect_db(self):
         dbConn = pymysql.connect(
             host=self.host, port=self.port, user=self.user, password=self.password, database=self.dbName)
@@ -36,10 +40,17 @@ class MySqlUtils:
     def delete_sql(self):
         pass
 
-    def select_sql(self):
-        pass
+    def select_sql(self,sql):
+        cursor=self.dbConn.cursor()
+        cursor.execute(sql)
+        return cursor.fetchall()
 
 if __name__ == '__main__':
     dbUtils = MySqlUtils("192.168.10.11", 3306, 'admin', '111111', 'demo')
-    sql="INSERT INTO card VALUES(id,'wkt','2019-12-08 19:21:22')"
-    dbUtils.insert_sql(sql)
+    while True:
+        #sql="INSERT INTO card VALUES(id,'wkt','2019-12-08 19:21:22')"
+        sql="SELECT * FROM CARD;"
+        print(dbUtils.select_sql(sql))
+        dbUtils.disconnect_db()
+        time.sleep(2)
+

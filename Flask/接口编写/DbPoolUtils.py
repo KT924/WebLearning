@@ -28,6 +28,7 @@ class MysqlClient:
     def __get_conn(self):
         self._conn = self.__pool.connection()
         self._cursor = self._conn.cursor()
+        print(self.__pool,self._conn,self._cursor)
 
     def close(self):
         try:
@@ -45,54 +46,68 @@ class MysqlClient:
         return result_dict
 
     def __execute(self, sql, param=()):
+        count=""
         try:
             count = self._cursor.execute(sql, param)
+            return count
         except Exception as e:
             print("__execute方法执行错误", e)
-        finally:
-            self.close()
-        return count
+
+
     
     def __executemany(self,sql,param=()):
+        count=""
         try:
             count=self._cursor.executemany(sql,param)
+            return count
         except Exception as e:
             print("__executemany方法执行错误",e)
         finally:
             self.close()
-        return count
 
-    def execute_select(self, sql, param=()):
+
+    def select(self, sql, param=()):
         count = self.__execute(sql, param)
-        result = self._cursor.fetchone()
-        result = self.__dict_datetime_to_str(result)
-        return count, result
+        while count != 0:
+            result=self._cursor.fetchone()
+            result=self.__dict_datetime_to_str(result)
+            count-=1
+            yield (count,result)
+        self.close()
 
-    def execute_select_many(self, sql, param=()):
-        count = self.__execute(sql, param)
-        result=self._cursor.fetchall()
-        [self.__dict_datetime_to_str(row) for row in result]
-        return count,result
 
-    def execute_insert(self, sql, param=()):
+
+    def insert(self, sql, param=()):
+        self.__get_conn()
         self.begin()
         count = self.__execute(sql, param)
-        self.end('commit')
+        if count != 1:
+            self.end('rollback')
+        else:
+            self.end('commit')
         return count
-    
-    def execute_insert_many(self,sql,param=()):
-        pass
+
 
 
 
     def begin(self):
-        self._conn.autocommit(0)
+        self._conn.begin()
+        #self.__execute('begin;')
 
     def end(self, option='commit'):
         if option == 'commit':
-            self._conn.autocommit()
+            self._conn.commit()
         else:
             self._conn.rollback()
 
 
-
+if __name__ == '__main__':
+    mc = MysqlClient(user='admin', host="192.168.10.11",
+                     passwd='111111', db='demo', port=3306)
+    #sql = 'INSERT INTO CARD values (id,\'wkt\',\'2019-12-14 19:00:00\')'
+    for each in range(5):
+        sql = 'SELECT * FROM CARD;'
+        result = mc.select(sql)
+        time.sleep(5)
+        for each in result:
+            print(each)
