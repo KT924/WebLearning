@@ -1,56 +1,75 @@
 #!/bin/env python
 
 import time
+import datetime
 import pymysql
 
 
 class MySqlUtils:
     def __init__(self, host, port, user, password, dbName):
-        self.host = host
-        self.user = user
-        self.password = password
-        self.port = port
-        self.dbName = dbName
-        self.dbConn = self.__connect_db()
+        self._dbConn = self.__connect_db(host, port, user, password, dbName)
+        self._cursor = self.__get_cursor()
 
-    def __enter__(self):
-        pass
-    def __exit__(self):
-        pass
-    
-    def __connect_db(self):
-        dbConn = pymysql.connect(
-            host=self.host, port=self.port, user=self.user, password=self.password, database=self.dbName)
-        dbConn.autocommit(False)
-        return dbConn
-
-    def disconnect_db(self):
-        self.dbConn.close()
-    def insert_sql(self,sql):
+    def __connect_db(self, host, port, user, password, dbName):
         try:
-            cursor = self.dbConn.cursor()
-            cursor.execute(sql)
-            self.dbConn.close()
-            return True
-        except:
-            return False
-    def update_sql(self):
-        pass
+            dbConn = pymysql.connect(
+                host=host, port=port, user=user, password=password, database=dbName)
+            dbConn.autocommit(False)
+            return dbConn
+        except Exception as e:
+            print('连接失败', e)
+        finally:
+            return None
 
-    def delete_sql(self):
-        pass
+    def __get_cursor(self, cursorType=pymysql.cursors.DictCursor):
+        if not self._dbConn:
+            return self._dbConn.cursor(cursor=cursorType)
 
-    def select_sql(self,sql):
-        cursor=self.dbConn.cursor()
-        cursor.execute(sql)
-        return cursor.fetchall()
+    def __close_conn(self):
+        self._dbConn.close()
+
+    def __close_cursor(self):
+        self._cursor.close()
+
+    def __execute(self, sql, param=()):
+        try:
+            count = self._cursor.execute(sql, param)
+            return count
+        except Exception as e:
+            print("__execute方法执行错误", e)
+
+    @staticmethod
+    def __dict_datetime_to_str(resultDict):
+        if resultDict:
+            resultReplace = {k: v.__str__() for k, v in resultDict.items(
+            ) if isinstance(v, datetime.datetime)}
+            resultDict.update(resultReplace)
+        return resultDict
+
+    def select(self, sql, param=()):
+        count = self.__execute(sql, param)
+        while count != 0:
+            row = self._cursor.fetchone()
+            row = self.__dict_datetime_to_str(row)
+            count -= 1
+            yield row
+    
+    def insert(self,sql,param=()):
+        self._dbConn.begin()
+        count = self.__execute(sql,param)
+        if count != 1:
+            self._dbConn.rollback()
+            print('插入行数不等于一行，即将回退！')
+            return count
+        else:
+            self._dbConn.commit()
+        
 
 if __name__ == '__main__':
     dbUtils = MySqlUtils("192.168.10.11", 3306, 'admin', '111111', 'demo')
     while True:
         #sql="INSERT INTO card VALUES(id,'wkt','2019-12-08 19:21:22')"
-        sql="SELECT * FROM CARD;"
+        sql = "SELECT * FROM CARD;"
         print(dbUtils.select_sql(sql))
         dbUtils.disconnect_db()
         time.sleep(2)
-
