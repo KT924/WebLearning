@@ -37,6 +37,13 @@ class MySqlUtils:
             return count
         except Exception as e:
             print("__execute方法执行错误", e)
+    
+    def __executemany(self,sql,param=()):
+        try:
+            count = self._cursor.executemany(sql,param)
+            return count
+        except Exception as e:
+            print('__executemany方法执行错误',e)
 
     @staticmethod
     def __dict_datetime_to_str(resultDict):
@@ -46,6 +53,15 @@ class MySqlUtils:
             resultDict.update(resultReplace)
         return resultDict
 
+    def begin(self):
+        self._dbConn.begin()
+    
+    def commit(self,commit=True):
+        if commit:
+            self._dbConn.commit()
+        else:
+            self._dbConn.rollback()
+
     def select(self, sql, param=()):
         count = self.__execute(sql, param)
         while count != 0:
@@ -54,16 +70,27 @@ class MySqlUtils:
             count -= 1
             yield row
     
-    def insert(self,sql,param=()):
-        self._dbConn.begin()
-        count = self.__execute(sql,param)
-        if count != 1:
-            self._dbConn.rollback()
-            print('插入行数不等于一行，即将回退！')
-            return count
+    def insert(self,sql,param=(),many=Fales):
+        if not many:
+            count = self.__execute(sql,param)
         else:
-            self._dbConn.commit()
-        
+            count = self.__executemany(sql,param)
+        return count 
+
+    def update(self,sql,param=(),many=Fales):
+        if not many:
+            count = self.__execute(sql,param)
+        else:
+            count = self.__executemany(sql,param)
+        return count
+
+    def delete(self,sql,param=(),many=Fales):
+        if not many:
+            count = self.__execute(sql,param)
+        else:
+            count = self.__executemany(sql,param)
+        return count
+
 
 if __name__ == '__main__':
     dbUtils = MySqlUtils("192.168.10.11", 3306, 'admin', '111111', 'demo')
