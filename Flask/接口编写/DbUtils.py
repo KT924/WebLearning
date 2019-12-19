@@ -18,12 +18,16 @@ class MySqlUtils:
             return dbConn
         except Exception as e:
             print('连接失败', e)
-        finally:
-            return None
 
+    def reconnect(self,host,port,user,password,dbName):
+        self._dbConn = self.__connect_db(host,port,user,password,dbName)
+        self._cursor = self.__get_cursor()
+        
     def __get_cursor(self, cursorType=pymysql.cursors.DictCursor):
-        if not self._dbConn:
+        #print(type(self._dbConn))
+        if  self._dbConn:
             return self._dbConn.cursor(cursor=cursorType)
+            
 
     def __close_conn(self):
         self._dbConn.close()
@@ -37,13 +41,13 @@ class MySqlUtils:
             return count
         except Exception as e:
             print("__execute方法执行错误", e)
-    
-    def __executemany(self,sql,param=()):
+
+    def __executemany(self, sql, param=()):
         try:
-            count = self._cursor.executemany(sql,param)
+            count = self._cursor.executemany(sql, param)
             return count
         except Exception as e:
-            print('__executemany方法执行错误',e)
+            print('__executemany方法执行错误', e)
 
     @staticmethod
     def __dict_datetime_to_str(resultDict):
@@ -55,13 +59,14 @@ class MySqlUtils:
 
     def begin(self):
         self._dbConn.begin()
-    
-    def commit(self,commit=True):
+
+    def commit(self, commit=True):
         if commit:
             self._dbConn.commit()
         else:
             self._dbConn.rollback()
 
+        
     def select(self, sql, param=()):
         count = self.__execute(sql, param)
         while count != 0:
@@ -69,34 +74,39 @@ class MySqlUtils:
             row = self.__dict_datetime_to_str(row)
             count -= 1
             yield row
-    
-    def insert(self,sql,param=(),many=Fales):
+            
+    def insert(self, sql, param=(), many=False):
         if not many:
-            count = self.__execute(sql,param)
+            count = self.__execute(sql, param)
         else:
-            count = self.__executemany(sql,param)
-        return count 
-
-    def update(self,sql,param=(),many=Fales):
-        if not many:
-            count = self.__execute(sql,param)
-        else:
-            count = self.__executemany(sql,param)
+            count = self.__executemany(sql, param)
         return count
 
-    def delete(self,sql,param=(),many=Fales):
+    def update(self, sql, param=(), many=False):
         if not many:
-            count = self.__execute(sql,param)
+            count = self.__execute(sql, param)
         else:
-            count = self.__executemany(sql,param)
+            count = self.__executemany(sql, param)
+        return count
+
+    def delete(self, sql, param=(), many=False):
+        if not many:
+            count = self.__execute(sql, param)
+        else:
+            count = self.__executemany(sql, param)
         return count
 
 
 if __name__ == '__main__':
-    dbUtils = MySqlUtils("192.168.10.11", 3306, 'admin', '111111', 'demo')
+   
+    #dbUtils = MySqlUtils("192.168.10.11", 3306, 'admin', '111111', 'demo')
+    #sql = "INSERT INTO DATA values(id,'wkt','测试数 据插入','2019-12-19 00:00:00','2019-12-19 00:00:00','http://localhost/data/1')"
+    sql = "SELECT * FROM data;"
     while True:
-        #sql="INSERT INTO card VALUES(id,'wkt','2019-12-08 19:21:22')"
-        sql = "SELECT * FROM CARD;"
-        print(dbUtils.select_sql(sql))
-        dbUtils.disconnect_db()
+        #sql="INSERT INTO card VALUES(id,'wkt','2019-12-08 19:21:22')"   
+        #dbUtils.begin()
+        count=dbUtils.select(sql)
+        #dbUtils.commit(False)
+        print(next(count))
         time.sleep(2)
+        break
