@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- {% set navigation = [('/','Home'),('/about','About')] %} -->
+    {% set navigation %}
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About</a></li>
+    {% endset %}
+    <title>Document</title>
+</head>
+<body>
+    <p>自定义变量：{{ navigation }}</p>
+    <!-- 自定义过滤器 + 自定义变量 -->
+    <p>context_processor+template_filter：{{ foo|musical }}</p>
+    <!-- 自定义全局函数 -->
+    <p>template_global：{{ bar() }}</p>
+    <!-- 自定义测试器 -->
+    <p>template_test：
+    {% if n is name %} 
+        <p>{{ n }}</p>
+    {% else %}
+        <p>no n</p>
+    {% endif %}
+    </p>
+</body>
+</html>

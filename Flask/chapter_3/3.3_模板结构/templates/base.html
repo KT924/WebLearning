@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% block head %}
+        <meta charset="UTF-8">
+        <title>{% block title %}Template - HelloFlask {% endblock %}</title>
+        {% block styles %}{% endblock %}
+    {% endblock %}
+</head>
+<body>
+    {% block foo %}
+        <!-- 局部模板的引入 -->
+        {% include 'jubu.html' %}
+        <!-- 宏的引入 -->
+        {% from 'macro.html' import add %}
+        <p>宏的计算结果：{{ add(12,24) }}</p>
+    {% endblock %}
+    <nav>
+        <ul>
+            <li>
+                <a href="{{ url_for('index') }}">Home</a>
+            </li>
+        </ul>
+    </nav>
+    <main>
+        <footer>
+            {% block footer %}
+                <p>I am footer</p>
+            {% endblock %}
+        </footer>
+        {% block scripts %}{% endblock %}
+    </main>
+</body>
+</html>
