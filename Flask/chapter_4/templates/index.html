@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <!-- <form method='POST'>
+        <label for="username">Username</label><br>
+        <input type="text" name="username" placeholder="Hector Rivera"><br>
+        <label for="password">Password</label><br>
+        <input type="text" name="password" placeholder="709394"><br>
+        <input type="checkbox" id="remember" name="remember" checked>
+        <label for="remember"><small>Remember me</small></label><br>
+        <input type="submit" name="submit" value="Login">
+    </form> -->
+    <!-- <form method='POST'>
+        {{ form.csrf_token }}
+        {{ form.username.label }} <br> {{ form.username }} <br>
+            {% for msg in form.username.errors %}
+            <small class='error'>{{ msg }} </small>
+        {% endfor %}  
+        {{ form.password.label }} <br> {{ form.password }} <br>
+            {% for err in form.password.errors %}
+            <small class='error'>{{ err }} </small>
+        {% endfor %}  
+        {{ form.remember }} {{ form.remember.label }} <br>
+        {{ form.submit }} <br>
+    </form> -->
+    {% from 'macros.html' import form_field %}
+    <form method="POST">
+    <!-- <form method="POST" enctype="multipart/form-data"> 上传文件的表单需要添加这个属性--> 
+        {{ form.csrf_token }}
+        {{ form_field(form.username) }}
+        {{ form_field(form.password) }}
+        {{ form_field(form.object) }}
+        {{ form_field(form.remember) }}
+        {{ form_field(form.submit) }}
+    </form>
+</body>
+</html>

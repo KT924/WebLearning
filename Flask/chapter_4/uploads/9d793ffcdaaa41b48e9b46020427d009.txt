@@ -1,0 +1,66 @@
+[root@iZ2zeilpcqpbq6slzodhwjZ ~]# kubectl describe pod rocketmq-sample-5f5cb58b4d-mwqlb
+Name:           rocketmq-sample-5f5cb58b4d-mwqlb
+Namespace:      default
+Priority:       0
+Node:           <none>
+Labels:         app=rocketmq-sample
+                pod-template-hash=5f5cb58b4d
+Annotations:    <none>
+Status:         Pending
+IP:
+Controlled By:  ReplicaSet/rocketmq-sample-5f5cb58b4d
+Containers:
+  nameserver:
+    Image:      rocketmq-simple:v1.0
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      /root/rocketmq/bin/mqnamesrv
+      -c
+      /root/mq/conf/nameserver.conf
+    Environment:  <none>
+    Mounts:
+      /root/logs from log-volume (rw)
+      /root/mq/namesrv from nameserver-data-volume (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-4x56h (ro)
+  broker:
+    Image:      rocketmq-simple:v1.0
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      /root/rocketmq/bin/mqbroker
+      -c
+      /root/mq/conf/broker.conf
+    Environment:  <none>
+    Mounts:
+      /root/logs from log-volume (rw)
+      /root/mq/broker from broker-data-volume (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-4x56h (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False
+Volumes:
+  nameserver-data-volume:
+    Type:          HostPath (bare host directory volume)
+    Path:          /app/rocket/mq/nameserver
+    HostPathType:  Directory
+  broker-data-volume:
+    Type:          HostPath (bare host directory volume)
+    Path:          /app/rocket/mq/broker
+    HostPathType:  Directory
+  log-volume:
+    Type:          HostPath (bare host directory volume)
+    Path:          /app/rocket/mq/logs
+    HostPathType:  Directory
+  default-token-4x56h:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-4x56h
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  app=rocketmq
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type     Reason            Age                  From               Message
+  ----     ------            ----                 ----               -------
+  Warning  FailedScheduling  5m1s (x376 over 9h)  default-scheduler  0/3 nodes are available: 3 node(s) didn't match node selector.
