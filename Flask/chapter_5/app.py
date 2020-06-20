@@ -1,15 +1,18 @@
 from flask import Flask
 import config
 import click
-from flask_sqlalchemy import SQLAlchemy
+from exts import db
 from forms import NoteForm
 from flask import flash,redirect,url_for,render_template
+from models import Note
 
 app=Flask(__name__)
 app.secret_key="DEV"
 app.config.from_object(config)
-db=SQLAlchemy(app)
-from models import Note
+
+db.init_app(app)
+
+
 
 
 @app.cli.command()
@@ -35,3 +38,7 @@ def new_note():
 def index():
     notes=Note.query.all()
     return render_template('index.html',notes=notes)
+
+
+if __name__=='__main__':
+    app.run(host='0.0.0.0',port=5000)

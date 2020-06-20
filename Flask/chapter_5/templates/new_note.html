@@ -7,9 +7,10 @@
 </head>
 <body>
     <h2>New Note</h2>
+    {% from 'macros.html' import form_field %}
     <form method="POST">
         {{ form.csrf_token }}
-        {{ form.body }}
+        {{ form_field(form.body,rows=5,cols=50) }}
         {{ form.submit }}
     </form>
 </body>

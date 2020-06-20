@@ -1,8 +1,7 @@
-
 import os
 import config
 import click
-from app import db
+from exts import db
 
 class Note(db.Model):
     id=db.Column(db.Integer,primary_key=True)
